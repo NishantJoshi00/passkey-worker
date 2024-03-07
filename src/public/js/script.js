@@ -1,4 +1,12 @@
-document.getElementById("loginButton").addEventListener("click", login);
+
+// if user is passed in query parameter then hide id="username"
+const urlParams = new URLSearchParams(window.location.search);
+const user = urlParams.get("user");
+if (user) {
+  document.getElementById("username").value = user;
+  document.getElementById("username").hidden = true;
+}
+
 
 function showMessage(message, isError = false) {
   const messageElement = document.getElementById("message");
@@ -12,7 +20,11 @@ document.getElementById("LockBtn").addEventListener("click", function () {
   })
     .then((response) => {
       if (response.ok) {
-        showMessage("Locked");
+        return showMessage("Locked");
+      }
+
+      if (response.status === 401) {
+        return login();
       }
     })
     .catch((err) => {
@@ -28,7 +40,11 @@ document.getElementById("RestartBtn").addEventListener("click", function () {
     .then((response) => {
       // check if response is ok
       if (response.ok) {
-        showMessage("Restarted");
+        return showMessage("Restarted");
+      }
+
+      if (response.status === 401) {
+        return login();
       }
     })
     .catch((err) => {

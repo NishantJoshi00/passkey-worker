@@ -1,5 +1,6 @@
 import express from "express";
 import { getUserById } from "../file";
+import { runLock } from "../system/functions";
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.use(async (req, res, next) => {
 });
 
 router.post("/lock", (req, res) => {
+  runLock();
   res.json({ message: "Locked" });
 });
 

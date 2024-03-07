@@ -26,9 +26,6 @@ async function getUserById(userId: string): Promise<User | undefined> {
 
 async function getUserByUsername(username: string): Promise<User | undefined> {
   const user = await fs.readFile(user_filename, "utf-8");
-
-  console.log(user);
-
   const users: User[] = JSON.parse(user);
   return users.find((user) => user.username === username);
 }
