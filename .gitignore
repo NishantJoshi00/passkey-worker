@@ -1,5 +1,10 @@
 node_modules/
 build/
 logs/
+*.key
+*.crt
+.env
+user.json
+cred.json
 
 src/app/.notes

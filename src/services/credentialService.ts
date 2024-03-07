@@ -1,50 +1,47 @@
-import {promisePool} from '../database';
-import type {AuthenticatorDevice} from '@simplewebauthn/typescript-types';
-
+import type { AuthenticatorDevice } from "@simplewebauthn/typescript-types";
+import {
+  createCredentials,
+  getCredentialByCredentialId,
+  updateCredentialCounter,
+} from "../file";
+import { base64ToUint8Array } from "../utils/utils";
 
 export const credentialService = {
-    async saveNewCredential(userId: string, credentialId: string, publicKey: string, counter: number, transports: string) {
-        try {
-            console.log(transports);
-            await promisePool.query(
-                'INSERT INTO credentials (user_id, credential_id, public_key, counter, transports) VALUES (?, ?, ?, ?, ?)',
-                [userId, credentialId, publicKey, counter, "internal"]
-            );
-        } catch (error) {
-            console.error('Error saving new credential:', error);
-            throw error;
-        }
-    },
+  async saveNewCredential(
+    userId: string,
+    credentialId: string,
+    publicKey: string,
+    counter: number,
+    transports: string,
+  ) {
+    return await createCredentials({
+      id: 1,
+      user_id: userId,
+      credential_id: credentialId,
+      public_key: publicKey,
+      counter: counter,
+      transports: [transports],
+    });
+  },
 
-    async getCredentialByCredentialId(credentialId: string): Promise<AuthenticatorDevice | null> {
-        try {
-            const [rows] = await promisePool.query('SELECT * FROM credentials WHERE credential_id = ? LIMIT 1', [credentialId]);
-            // @ts-ignore
-            if (rows.length === 0) return null;
-            // @ts-ignore
-            const row = rows[0];
-            return {
-                userID: row.user_id,
-                credentialID: row.credential_id,
-                credentialPublicKey: row.public_key,
-                counter: row.counter,
-                transports: row.transports ? row.transports.split(',') : [],
-            } as AuthenticatorDevice;
-        } catch (error) {
-            console.error('Error retrieving credential:', error);
-            throw error;
-        }
-    },
+  async getCredentialByCredentialId(
+    credentialId: string,
+  ): Promise<AuthenticatorDevice | null> {
+    const creds = await getCredentialByCredentialId(credentialId);
 
-    async updateCredentialCounter(credentialId: string, newCounter: number) {
-        try {
-            await promisePool.query(
-                'UPDATE credentials SET counter = ? WHERE credential_id = ?',
-                [newCounter, credentialId]
-            );
-        } catch (error) {
-            console.error('Error updating credential counter:', error);
-            throw error;
-        }
+    if (!creds) return null;
+    else {
+      return {
+        userID: creds.user_id,
+        credentialID: base64ToUint8Array(creds.credential_id),
+        credentialPublicKey: base64ToUint8Array(creds.public_key),
+        counter: creds.counter,
+        transports: creds.transports,
+      } as AuthenticatorDevice;
     }
+  },
+
+  async updateCredentialCounter(credentialId: string, newCounter: number) {
+    const _updated = await updateCredentialCounter(credentialId, newCounter);
+  },
 };

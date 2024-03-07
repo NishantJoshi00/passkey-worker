@@ -11,12 +11,17 @@ import { CustomError } from '../middleware/customError';
 export const handleRegisterStart = async (req: Request, res: Response, next: NextFunction) => {
     const {username} = req.body;
 
+    console.log("Start");
+
     if (!username) {
         return next(new CustomError('Username empty', 400));
     }
 
     try {
         let user = await userService.getUserByUsername(username);
+
+        console.log("getUser");
+
         if (user) {
             return next(new CustomError('User already exists', 400));
         } else {
@@ -58,6 +63,8 @@ export const handleRegisterFinish = async (req: Request, res: Response, next: Ne
     }
 
     try {
+
+        console.log("Entered");
         const verification = await verifyRegistrationResponse({
             response: body as RegistrationResponseJSON,
             expectedChallenge: currentChallenge,
@@ -65,6 +72,9 @@ export const handleRegisterFinish = async (req: Request, res: Response, next: Ne
             expectedRPID: rpID,
             requireUserVerification: true,
         });
+
+
+        console.log("Second");
 
         if (verification.verified && verification.registrationInfo) {
             const {credentialPublicKey, credentialID, counter} = verification.registrationInfo;
@@ -74,11 +84,14 @@ export const handleRegisterFinish = async (req: Request, res: Response, next: Ne
                 uint8ArrayToBase64(credentialPublicKey),
                 counter,
                 body.response.transports);
+
+            console.log("Third");
             res.send({verified: true});
         } else {
             next(new CustomError('Verification failed', 400));
         }
     } catch (error) {
+        console.log(error);
         next(error instanceof CustomError ? error : new CustomError('Internal Server Error', 500));
     } finally {
         req.session.loggedInUserId = undefined;
