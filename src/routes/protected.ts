@@ -1,6 +1,6 @@
 import express from "express";
 import { getUserById } from "../file";
-import { runLock } from "../system/functions";
+import { runLock, runPoweroff } from "../system/functions";
 
 const router = express.Router();
 
@@ -20,7 +20,8 @@ router.post("/lock", (req, res) => {
   res.json({ message: "Locked" });
 });
 
-router.post("/restart", (req, res) => {
+router.post("/poweroff", (req, res) => {
+  runPoweroff();
   res.json({ message: "Restarted" });
 })
 

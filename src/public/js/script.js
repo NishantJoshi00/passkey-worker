@@ -33,8 +33,8 @@ document.getElementById("LockBtn").addEventListener("click", function () {
     });
 });
 
-document.getElementById("RestartBtn").addEventListener("click", function () {
-  fetch("/api/protected/restart", {
+document.getElementById("PowerOffBtn").addEventListener("click", function () {
+  fetch("/api/protected/poweroff", {
     method: "POST",
   })
     .then((response) => {

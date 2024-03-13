@@ -4,5 +4,9 @@ function runLock() {
   subprocess.exec("hyprlock", (error, stdout, stderr) => {});
 }
 
+function runPoweroff() {
+  subprocess.exec("poweroff", (error, stdout, stderr) => {});
+}
 
-export { runLock };
+
+export { runLock, runPoweroff };
